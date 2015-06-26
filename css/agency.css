@@ -323,10 +323,9 @@ header .intro-text .intro-heading {
 @media(max-width: 360px) {
     header{
         background-image: url(../img/header.jpg);
-        font-color: #626262;
-        color: #fff
-        
+        background-color: #fff;
     }
+    
 }
 
 section {
@@ -439,12 +438,15 @@ section h3.section-subheading {
     line-height: 110%;
 }
 
-.about-pad {
-    padding: 1em 6em;
-    line-height: 1.8em;
-    font-size: 17px;
-    text-align: left;
+@media(min-width:767px) {
+  .about-pad {
+      padding: 1em 6em;
+      line-height: 1.8em;
+      font-size: 17px;
+      text-align: left;
+  }  
 }
+
 
 
 
