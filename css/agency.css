@@ -322,8 +322,7 @@ header .intro-text .intro-heading {
 
 @media(max-width: 360px) {
     header{
-        background-image: url(../img/header.jpg);
-        font-color: #626262;
+        background-color: #626262;
         
     }
 }
