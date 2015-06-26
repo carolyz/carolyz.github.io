@@ -320,6 +320,13 @@ header .intro-text .intro-heading {
     }
 }
 
+@media(max-width: 360px) {
+    header{
+        background-color: #626262;
+        color: #626262;
+    }
+}
+
 section {
     padding: 100px 0;
 }
