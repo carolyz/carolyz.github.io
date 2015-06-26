@@ -324,6 +324,7 @@ header .intro-text .intro-heading {
     header{
         background-image: url(../img/header.jpg);
         font-color: #626262;
+        color: #fff
         
     }
 }
