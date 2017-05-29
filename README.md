@@ -1,7 +1,5 @@
-# Personal website of Carol Zhang
+# Portfolio site of Carol Zhang
+Built with performance and a minimal asethetic in mind
 
 ## Quantitative neuroscience researcher turned full-stack developer turning data scientist
-
-based on the [Bootstrap](http://getbootstrap.com/) framework created by [Mark Otto](https://twitter.com/mdo) and [Jacob Thorton](https://twitter.com/fat).
-
-## Copyright and License
+This is a CV, journal, and portfolio in one. A living document of all my experiences and what I've learned.
