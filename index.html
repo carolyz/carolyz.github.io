@@ -52,8 +52,8 @@
             <ol>
                 <li>08 '16-present: <a href="https://torontossc.com">Developer</a></li>
                 <ul>
-                    <li>Member data analysis and visualization lead</li>
-                    <li>Website redesign</li>
+                    <li>Data analysis and visualization lead</li>
+                    <li>Website redesign and launch</li>
                 </ul>
                 <li>02-03: <a href="https://www.coursera.org/specializations/data-science-python">Applied Data Science with Python</a></li>
                 <li>03-06: <a href="https://www.udemy.com/python-for-data-science-and-machine-learning-bootcamp"> Python for Data Science and Machine Learning Bootcamp</a></li>
@@ -82,10 +82,14 @@
         </div>
         <div class="photo">
             <img src="img/carol.jpg" alt="Photo of me walking" title="*poke">
-            <p><small>&#x270C Coded with love.</small></p>
+            <p><small id="bottom-text">&#x270C Coded with love. &copy; </small></p>
         </div>
 
         </div>
+        <script type="text/javascript">
+            var year = new Date().getFullYear();
+            document.getElementById('bottom-text').insertAdjacentText('beforeend',year.toString());
+        </script>
 
         <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
