@@ -15,7 +15,12 @@
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
     "polymer": "Polymer/polymer#^2.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
-    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.1"
+    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.1",
+    "d3": "4.x",
+    "d3-svg-legend": "https://github.com/susielu/d3-legend.git#master",
+    "d3-tip": "https://github.com/cgav/d3-tip.git#master",
+    "topojson": "^3.x",
+    "multi-chart": "PolymerEl/multi-chart#^0.7.9"
   },
   "resolutions": {
     "polymer": "^2.0.0"

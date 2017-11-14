@@ -19,15 +19,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="my-icons.html">
 
 <link rel="lazy-import" href="my-view404.html">
+<link rel="lazy-import" href="my-new-view.html">
 
 <dom-module id="my-app">
   <template>
-    <style include="iron-flex iron-flex-alignment">
     <style>
       :host {
         --app-primary-color: #4285f4;
@@ -138,7 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _routePageChanged(page) {
         // If no page was found in the route data, page will be an empty string.
         // Default to 'view1' in that case.
-        this.page = page || 'view1';
+        this.page = page || 'new-view';
 
         // Close a non-persistent drawer when the page & route are changed.
         if (!this.$.drawer.persistent) {
@@ -163,4 +162,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     window.customElements.define(MyApp.is, MyApp);
   </script>
+  <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 </dom-module>
