@@ -31,7 +31,9 @@ var svg = d3.select("svg"),
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-var parseTime = d3.timeParse("%y-%m-%d");
+// var parseTime = d3.timeParse("%y-%m-%d");
+// for some reason ParseTime does not work, but creating a new
+// Date object does, as show below
 
 d3.tsv('delay_data.tsv', function(error,data) {
 
