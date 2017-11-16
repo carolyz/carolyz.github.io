@@ -4,34 +4,26 @@
          <style>
             :host {
                 display: block;
-                height: 400px;
+                height: 100%;
+                width: 100%;
             }
-            text {
-              fill: white;
-            }
-            .controls {
-              display: inline-block;
-              margin: 0 0 0 20px;
-            }
-            svg {
-              float: right;
-              margin: 0 20px 0 0;
-            }
-            .arc path {
-              stroke: #fff;
-            }
+        .axis--x path {
+          display: none;
+        }
+
+        .line {
+          fill: none;
+          stroke: steelblue;
+          stroke-width: 1.5px;
+        }
         </style>
         <div class="controls">
           <template repeat="{{d in data}}">
-            <p><label for="input">{{d.type}}: </label>
-            <input id="input"
-            type="range"
-            value="{{d.amount}}"
-            min="0" max="500"
-            on-input="{{refreshChart}}"> ${{d.amount}}</p>
+            <p>{{d.date}}: </label>
+            ${{d.close}}</p>
           </template>
         </div>
-        <svg id="svg"></svg>
+        <svg id="svg" width="1060" height="500"></svg>
     </template>
     <script>
       class PieChart extends Polymer.Element {
@@ -41,78 +33,123 @@
           super.ready();
           setTimeout(function() {
             var d3 = window.d3;
-            var width = 500,
-                height = 500,
-                radius = Math.min(width, height) / 2;
-
-            this.color = d3.scaleOrdinal()
-                .range(["green", "orange", "blue", "red"]);
-
-            this.arc = d3.arc()
-                .outerRadius(radius - 10)
-                .innerRadius(0);
-
-            this.pie = d3.pie()
-                .sort(null)
-                .value(function(d) { return d.amount; });
-
-            this.svg = d3.select(this.$.svg)
-                .attr("width", width)
-                .attr("height", height)
-              .append("g")
-                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-
-
+            // increasing right margin makes sure data on the right doesn't get cut off
+            var svg = d3.select(this.$.svg),
+                margin = {top: 20, right: 100, bottom: 30, left: 50},
+                width = 1000,
+                height = 400,
+                g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            console.log(svg.id);
             var me = this;
-            d3.csv("../data/data.csv", function (error, data) {
-              console.log(data);
+            d3.tsv("../data/delay_data.tsv", function (error, data) {
               me.data = data;
               me.data.forEach(function(d) {
-                d.amount = +d.amount;
+          //        console.log(d);
+                  d.date = new Date(d.date);
+                  d.Delay =+d.Delay;
+                  return d;
               });
+              if (error) throw error;
 
-              me.g = me.svg.selectAll(".arc")
-                  .data(me.pie(me.data))
-                .enter().append("g")
-                  .attr("class", "arc");
+              // Set the ranges
+              var x = d3.scaleTime().range([0, width]),
+                  y = d3.scaleLinear().range([height, 0]);
 
-              me.g.append("path")
-                  .attr("d", me.arc)
-                  .style("fill", function(d) { return me.color(d.data.type); });
+              var line = d3.line()
+                  .curve(d3.curveBasis)
+                  .x(function(d) {return x(d.date); })
+                  .y(function(d) {return y(d.Delay); });
 
-              me.g.append("text")
-                  .attr("transform", function(d) { return "translate(" + me.arc.centroid(d) + ")"; })
-                  .attr("dy", ".35em")
-                  .style("text-anchor", "middle")
-                  .text(function(d) { return d.data.type; });
+              x.domain(d3.extent(data, function(d) { return d.date; }));
+              y.domain(d3.extent(data, function(d) { return d.Delay;}));
 
-              me.g.data(me.pie(me.data))
-                .select("path").attr("d", me.arc);
+              g.append("g")
+                  .attr("class", "axis axis--x")
+                  .attr("transform", "translate(0," + height + ")")
+                  .call(d3.axisBottom(x));
 
-              me.g.select("text")
-                .attr("transform", function(d) { return "translate(" + me.arc.centroid(d) + ")"; });
+              g.append("g")
+                  .attr("class", "axis axis--y")
+                  .call(d3.axisLeft(y))
+                .append("text")
+                  .attr("transform", "rotate(-90)")
+                  .attr("y", 6)
+                  .attr("dy", "0.71em")
+                  .attr("fill", "#000")
+                  .text("Delay, Minutes");
+
+              g.append("path")
+                  .datum(data)
+                  .attr("fill", "none")
+                  .attr("stroke", "steelblue")
+                  .attr("stroke-linejoin", "round")
+                  .attr("stroke-linecap", "round")
+                  .attr("stroke-width", 1.5)
+                  .attr("d", line);
             });
+            // var width = 960,
+            //     height = 550,
+            //     margin = {};
 
+            // this.svg = d3.select(this.$.svg)
+            //     .attr("margin", {top: 10, right: 20, bottom: 10, left: 50})
+            //     .attr("width", width)
+            //     .attr("height", height);
 
+            // var parseTime = d3.timeParse("%y-%b-%d"); 
+
+            // var x = d3.scaleTime()
+            //     .rangeRound([0, width]);
+
+            // var y = d3.scaleLinear()
+            //     .rangeRound([height, 0]);
+
+            // var line = d3.line()
+            //     .x(function(d) { return x(d.Date); })
+            //     .y(function(d) { return y(d.Delay); });
+
+            // var me = this;
+            // d3.tsv("../data/delay_data.csv", function (error, data) {
+            //   if (error) throw error;
+            //   console.log(data);
+            //   me.data = data;
+            //   me.data.forEach(function(d) {
+            //     d.Date = parseTime(d.Date);
+            //     d.Delay = +d.Delay;
+            //   });
+
+            //   x.domain(d3.extent(data, function(d) { return d.Date; }));
+            //   y.domain(d3.extent(data, function(d) { return d.Delay; }));
+
+            //   me.g = me.svg.append("g").attr("transform", "translate(" + 70 + "," + 10 + ")");
+
+            //   me.g.append("g")
+            //       .attr("transform", "translate(0," + height + ")")
+            //       .call(d3.axisBottom(x))
+            //       .select(".domain")
+            //       .remove();
+
+            //   me.g.append("g")
+            //       .call(d3.axisLeft(y))
+            //       .append("text")
+            //       .attr("fill", "#000")
+            //       .attr("transform", "rotate(-90)")
+            //       .attr("y", 6)
+            //       .attr("dy", "0.71em")
+            //       .attr("text-anchor", "end")
+            //       .text("Price ($)");
+
+            //   me.g.append("path")
+            //       .datum(data)
+            //       .attr("fill", "none")
+            //       .attr("stroke", "steelblue")
+            //       .attr("stroke-linejoin", "round")
+            //       .attr("stroke-linecap", "round")
+            //       .attr("stroke-width", 1.5)
+            //       .attr("d", line);
+            // });
           }.bind(this),0);
         }
-
-        _refreshChart() {
-          var me = this;
-
-          me.g.data(me.pie(me.data))
-            .select("path").attr("d", me.arc);
-
-          me.g.select("text")
-            .attr("transform", function(d) { return "translate(" + me.arc.centroid(d) + ")"; });
-        }
-
-        _urlChanged(oldValue, newValue) {
-          if(newValue && oldValue) {
-            this.getData();
-          }
-        };
 
       }
       customElements.define(PieChart.is, PieChart);
