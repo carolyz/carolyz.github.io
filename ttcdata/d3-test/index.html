@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TTC Delay Data</title>
+    <script src="node_modules/d3/build/d3.js" charset="utf-8"></script>
+    <style>
+        .axis--x path {
+          display: none;
+        }
+
+        .line {
+          fill: none;
+          stroke: steelblue;
+          stroke-width: 1.5px;
+        }
+
+    </style>
+</head>
+<body>
+<h1>chart</h1>
+<svg width="1060" height="500"></svg>
+
+<script>
+
+// increasing right margin makes sure data on the right doesn't get cut off
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 100, bottom: 30, left: 50},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+// var parseTime = d3.timeParse("%y-%m-%d");
+// for some reason ParseTime does not work, but creating a new
+// Date object does, as show below
+
+d3.tsv('delay_data.tsv', function(error,data) {
+
+    data.forEach(function(d) {
+//        console.log(d);
+        d.date = new Date(d.date);
+        d.Delay =+d.Delay;
+        return d;
+    });
+
+    // Set the ranges
+    var x = d3.scaleTime().range([0, width]),
+        y = d3.scaleLinear().range([height, 0]);
+
+    var line = d3.line()
+        .curve(d3.curveBasis)
+        .x(function(d) {return x(d.date); })
+        .y(function(d) {return y(d.Delay); });
+    if (error) throw error;
+
+    x.domain(d3.extent(data, function(d) { return d.date; }));
+    y.domain(d3.extent(data, function(d) { return d.Delay;}));
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(y))
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("fill", "#000")
+        .text("Delay, Minutes");
+
+    g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 1.5)
+        .attr("d", line);
+});
+
+
+</script>
+</body>
+</html>
