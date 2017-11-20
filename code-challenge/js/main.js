@@ -9,14 +9,28 @@ function getData(url) {
 	});
 }
 
-function makeCard(photoUrl,firstName,lastName,street,city,state) {
-	firstName = formatStr(firstName);
-	lastName  = formatStr(lastName);
-	street	  = formatStr(street);
-	city 	  = formatStr(city);
-	state 	  = formatStr(state);
+// create cards in html using args from api
+function makeCards(userData) {
+    let main = document.getElementById('main');
+    let container = document.createElement('div');
+    container.id = 'card-container';
+    main.appendChild(container);
 
-	let cardHtml = `<div class="card">
+    for (var i = 0; i < userData.length; i++) {
+    	let photoUrl = userData[i]['picture']['thumbnail'];
+		let firstName = userData[i]['name']['first'];
+		let lastName = userData[i]['name']['last'];
+		let street = userData[i]['location']['street'];
+		let city = userData[i]['location']['city'];
+		let state = userData[i]['location']['state'];
+
+        firstName = formatStr(firstName);
+        lastName  = formatStr(lastName);
+        street	  = formatStr(street);
+        city 	  = formatStr(city);
+        state 	  = formatStr(state);
+
+        let cardHtml = `<div class="card">
   <div class="card-content">
     <div class="media">
       <div class="media-left">
@@ -31,38 +45,56 @@ function makeCard(photoUrl,firstName,lastName,street,city,state) {
     </div>
   </div>
 </div>`;
-
-	let card = document.createElement('div');
-	card.innerHTML = cardHtml;
-	return card;
+        // append a card to the main card container
+        container.innerHTML += cardHtml;
+    }
+	return container;
 }
 
+// capitalize 1st letter of name, street, city, etc.
 function formatStr(str) {
 	let result = str.split(' ').map(function(word) {
         return (word.charAt(0).toUpperCase() + word.slice(1));
     }).join(' ');
-	
     return result;
 }
 
 // call getData and handle the promise it returns
+let userData;
 getData('https://randomuser.me/api/?results=100').then((data) => {
-	let results = JSON.parse(data).results;
-	let main = document.getElementById("main");
-
-	for (var i = 0; i < results.length; i++) {
-		// display results in card form
-        let card = makeCard(
-        	results[i]['picture']['thumbnail'],
-            results[i]['name']['first'],
-            results[i]['name']['last'],
-            results[i]['location']['street'],
-			results[i]['location']['city'],
-			results[i]['location']['state']);
-        main.appendChild(card);
-    }
-	// console.dir(results);
+	userData = JSON.parse(data).results;
+	makeCards(userData);
+    document.getElementById('result-count').innerText = userData.length + ' results';
+    return userData;
 })
 .catch((e)=>{
 	console.log(e);
 });
+
+let input = document.getElementById('filter_users');
+function filterData(event) {
+	// use the native filter() to filter through the data
+	let filtered = userData.filter(
+		// check if both first and last name contains
+		// user-inputted search param
+		user =>
+			user.name.first.includes(input.value.toLowerCase()) ||
+			user.name.last.includes(input.value.toLowerCase())
+    );
+	// check if there are results fitting the filters
+	if (typeof filtered !== 'undefined' && filtered.length > 0) {
+        let main = document.getElementById('main');
+        let container = document.getElementById('card-container');
+        // if there's already a list of cards from a previous filter, remove it
+        if (container) {
+            main.removeChild(container);
+		}
+        makeCards(filtered);
+        document.getElementById('result-count').innerText = filtered.length + ' results';
+        return filtered;
+	}
+	else {
+		return userData;
+	}
+}
+input.addEventListener('keyup', filterData);
