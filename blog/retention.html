@@ -1,0 +1,72 @@
+<!doctype html>
+<!-- 
+
+ __           ___             
+/   _  _ _ |   _/|_  _  _  _  
+\__(_|| (_)|  /__| )(_|| )(_) 
+                          _/
+
+-->
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Carol</title>
+    <meta name="description" content="Retaining Customers with Data">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="../favicon.ico">
+    <link rel="icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="../css/normalize.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="../js/vendor/modernizr-2.8.3.min.js"></script>
+</head>
+<body>
+
+<!-- Content -->
+<div class="container">
+    <article>
+        <header>
+            <h1>Retaining Customers with Data</h1></a>
+            <h3 class="links">
+                <a href="//carolyz.github.io/">Carol Zhang</a> December 2017
+            </h3>
+        </header>
+        <section id="motivation">
+            <h2>Motivation</h2>
+            <p><strong>Retention: </strong>metric measuring the ability of a business to retain, or keep customers. It reflects both customer loyalty and the quality of the product. </p>
+            <p>It is a key metric that directly affects revenue. The good news is, retention is easy to adjust if it is measured the right way by harnessing existing data. Naturally, when my workplace decided to improve retention, I jumped on the opportunity to use data to help the company grow.</p>
+        </section>
+        <section id="abstract">
+            <h2>Abstract</h2>
+            <p>To decide as a team where to focus retention efforts, <strong>I’ve built an in-house retention app that combines charts and SQL queries into a presentable, easy-to-use web page accessible to everyone.</strong> The retention dashboard allows users to organize and filter customer cohorts, calculate retention statistics associated with those groups, and export their contact information for outreach efforts. Armed with actionable statistics, we started running marketing campaigns focused on retention and have seen an improvement in both profits and customer happiness.</p>
+        </section>
+        <section id="methods">
+            <h2>Methods</h2>
+            <p><strong>Data warehousing is key to building sustainable infrastructure generating custom retention insights.</strong> Existing data from 10+ tables are integrated into three categories:</p>
+            <ol>
+                <li><strong>Customer demographics</strong> - data provided by the customers upon sign-up including age, gender that they most identify with, and length of membership.</li>
+                <li><strong>Purchase information</strong> - information generated from each transaction. We can add more granularity to creating cohorts. This helps us track the history of each customer and lays the foundation for further marketing metrics (see Future Direction).</li>
+                <li><strong>Product details</strong> - from all the stuff purchased. Pretty straightforward.</li>
+            </ol>
+            <p>These data-funnelling and warehousing efforts are for both sanity and performance reasons. Once populated, the warehoused data is updated by:</p>
+            <ol>
+                <li>First checking the last inserted ID. For example, for the user module, I pulled the last user ID.</li>
+                <li>Since the user tables used in production contain the same key (user ID), I can use the most recent user ID from to delimit the starting point of rows to pull. I fetch only the rows that are more recent than the warehoused data and insert them.</li>
+            </ol>
+            <p>
+                This avoids overwriting existing data that have been cleaned and pre-processed and reduces volatility. The entire process is done via an automated script that runs monthly.</p>
+        </section>
+        <section id="future">
+            <h2>Results & Future Direction</h2>
+            <p>The first iteration has been very well received by everyone in the company. Various marketing campaigns stemming from the data generated have been successful in boosting profits and customer satisfaction. Who would've thought people like it when a company cares about them?</p>
+            <p> Because customer cohorts can be easily defined in the retention app, the next phase is adding <strong><a href="https://en.wikipedia.org/wiki/RFM_(customer_value)">RFM calculations</a></strong> to the the custom groups defined to paint a clearer picture of each person.
+            </p>
+            <p><em>Thoughts? Comments? Job opportunities? <a href="mailto:carol.zhang@mail.mcgill.ca?Subject=Retention%blog">Get in touch!</a></em></p>
+        </section>
+    </article>
+
+</div>
+</body>
+</html>
