@@ -97,8 +97,9 @@ textarea {
 
 
 html {
-    font-family: Andale Mono,AndaleMono,monospace; 
+    font-family: Andale Mono,AndaleMono,monospace;
     color: #202020;
+    -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -119,10 +120,10 @@ a {
     color: #202020;
 }
 
-a:visited { 
+a:visited {
     text-decoration: line-through;
 }
-a:hover { 
+a:hover {
     color: rgb(255, 211, 0);
 }
 
