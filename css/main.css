@@ -95,11 +95,14 @@ textarea {
    Custom styles
    ========================================================================== */
 
-
+@import url('https://rsms.me/inter/inter-ui.css');
 html {
-    font-family: Andale Mono,AndaleMono,monospace;
+    font-family: 'Inter UI', sans-serif;
     color: #202020;
     -webkit-font-smoothing: antialiased;
+}
+@supports (font-variation-settings: normal) {
+  html { font-family: 'Inter UI var alt', sans-serif; }
 }
 
 .container {
@@ -131,6 +134,10 @@ div h2 {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 0;
+}
+
+.small {
+    opacity: 0.8;
 }
 
 .skills ul {
