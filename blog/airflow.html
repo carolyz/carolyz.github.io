@@ -11,8 +11,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Carol</title>
-    <meta name="description" content="Retaining Customers with Data">
+    <title>Migrating cron jobs to Airflow</title>
+    <meta name="description" content="Migrating cron jobs to Airflow">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="apple-touch-icon" href="../favicon.ico">
@@ -34,18 +34,18 @@
         </header>
 <h2>What is Airflow?</h2>
         <p><a href="https://airflow.apache.org/index.html">Airflow</a> is an open-source tool for managing, executing, and monitoring complex computational workflows and data processing pipelines started at AirBnb. </p>
-        <p>While working in my previous team, I had to integrate and process various data sources on a regular basis. These tasks often depend and relate to one another, creating a network of jobs. In Airflow, these networks of jobs are  DAGs (directed acyclic graphs). <strong>Using cron to manage networks of jobs will get out of hand very quickly. Airflow offers ability to schedule, monitor, and most importantly, scale, increasingly complex workflows. </strong></p>
+        <p>While working in my previous team, I had to integrate and process various data sources on scheduled basis. These tasks often depend on and relate to one another, creating a network of jobs. In Airflow, these networks of jobs are  DAGs (directed acyclic graphs). <strong>Using cron to manage networks of jobs will not scale effectively. Airflow offers ability to schedule, monitor, and most importantly, scale, increasingly complex workflows. </strong></p>
 
 <h4>Terms and definitions</h4>
 
 <p>Think of a DAG as a box for one or more tasks. The box organizes related tasks into one unit to allow definition of common variables and relationships (upstream, downstream, parallel, etc). </p>
 
-<p>There are already many well-written articles that explain the fundamental concepts of Airflow. I will list below my favourite Airflow resources that I’ve found while starting out. As a result, this one will stop at the basic definition of a DAG, and move directly to migrating jobs from cron to Airflow.</p>
+<p>There are already many well-written articles that explain the fundamental concepts of Airflow. I will list below my favourite Airflow resources that I’ve found while starting out. As a result, this article will stop at the basic definition of a DAG, and move directly to migrating jobs from cron to Airflow.</p>
 
-<h2>Migration</h2>
+<h2>How to get Airflow to talk to existing Python scripts</h2>
 
     <h4>Set-up: DAG file definition</h4>
-    <p>The DAG file definition has been documented in many places. My personal favourite is the set of <a href="https://github.com/apache/airflow/tree/master/airflow/example_dags">example DAGs from the Airflow repository.</a> Mostly as a reference for my future self, I will include a template DAG I have used often in this migration.</p>
+        <p>The DAG file definition has been documented in many places. My personal favourite is the set of <a href="https://github.com/apache/airflow/tree/master/airflow/example_dags">example DAGs from the Airflow repository.</a> Mostly as a reference for my future self, I will include a template DAG I have used often in this migration.</p><p>To note: the scripts called inside tasks <code>my_script.py</code> and <code>my_script2.py</code> are placeholders for existing scripts that are previously scheduled in cron jobs.</p>
     <pre><code>
 from airflow import DAG
 from airflow.models import Variable
@@ -54,19 +54,17 @@ from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.latest_only_operator import LatestOnlyOperator
 
-# Python imports
 from datetime import datetime, timedelta
 
 script_dir = Variable.get('scripts_dir')  # where my Python scripts live
-
 mail_to = ['firstname.lastname@domain']
 
 default_args = {
     'depends_on_past': False,
-    'start_date': datetime(2019, 1, 11, 00, 00),
+    'start_date': datetime(2019, 1, 20, 00, 00),
     'email': mail_to,
-    'email_on_failure': True,
     'email_on_success': True,
+    'email_on_failure': True,
     'retries': 1,
     'retry_delay': timedelta(minutes=10),
     'catchup': False
@@ -95,20 +93,41 @@ task_2 = BashOperator(
     dag=my_dag_id
 )
 
-
 # set task relationship
 latest_only >> task_1 >> task_2
 
     </code></pre>
 
-    <h4>Calling Python functions that live in other repos (but are not installed as modules)</h4>
-        <p>Initially I thought I could use <code>PythonOperator</code>. After a few <code>Module not found</code> and <code>No module named</code> errors and some Googling, <code>PythonOperator</code> turns out to only work for functions installed as modules or functions that are within the same repo, hence the module errors. This StackOverflow post suggests packaging those dependencies. Since these data import functions are updated regularly and used in other places, this is not the most practical solution.  As a result, we turned to <code>BashOperator</code> to call all the data import scripts in a separate repo. </p>
+    <h4>Calling Python functions that live in other repositories (but are not installed as modules)</h4>
+        <p>Initially I thought I could use <code>PythonOperator</code>. After a few <code>Module not found</code> and <code>No module named</code> errors and some Googling, <strong><code>PythonOperator</code> turns out to only work for functions installed as modules or functions that are within the same directory, hence the module errors.</strong> <a href="https://stackoverflow.com/questions/33510365/airflow-python-file-not-in-the-same-dag-folder">This StackOverflow post</a> suggests creating a zip file of those dependencies. Since these data import functions are updated regularly and used in other places, this is not the most practical solution for my use case.  As a result, I turned to <code>BashOperator</code> to call all the data import scripts in a separate repository. </p>
 
     <h4>Calling Python functions that live in other files and are installed as modules aka installing custom Python dependencies for jobs running inside Docker</h4>
 
-        <p>Due to my Airflow jobs living inside a Docker container, all the dependencies have to be installed in the Docker image. The external libs are easy enough; <code>pip freeze</code> (while in the appropriate environment) to generate requirements.txt, run <code>pip install requirements.txt</code> command upon start up, and all the dependencies are available! I also have to deal with custom modules, which live in a different repo. Adding custom modules directly inside requirements.txt will cause <code>pip install</code> to fail, because the custom modules are not available through the default install path. A separate <code>pip install</code> followed by the path going to those modules <em>on the server</em> takes care of the remaining dependencies. </p>
+        <p>Due to my Airflow jobs living inside a Docker container, all the dependencies have to be installed in the Docker image. The external libs are easy enough; <code>pip freeze > requirements.txt</code> (while in the appropriate environment) to generate requirements.txt, run <code>pip install requirements.txt</code> command upon start up, and all the dependencies are available!</p>
+        <p> I also have to deal with custom modules, which live in a different repository. Adding custom modules directly inside requirements.txt will cause <code>pip install</code> to fail, because <strong> custom modules are not available through the default install path.</strong> A separate <code>pip install</code> followed by the path going to those modules <em>on the server</em> takes care of the remaining dependencies. </p>
 
-    <p>One thing that is painfully clear to me now but was not before: Simply running pip install inside the server on which the Docker container is does not work, because Docker is not aware of this. Airflow running inside Docker is looking for dependencies installed inside that container. Sometimes it's about drawing boxes around things and giving them names. It helps to reason about the relationships between boxes.</p>
+        <p>One thing that is painfully clear to me now but was not before: simply running <code>pip install</code> inside the server on which the Docker container is does not install dependencies inside the container, because Docker is not aware of anything outside of the container. <strong>Airflow running inside a Docker container is looking for dependencies installed inside that container.</strong> Sometimes solving a problem involves drawing boxes around things and naming them. Then, it helps to reason about the relationships between boxes.</p>
+
+    <h2>Airflow resources I found helpful</h2>
+    <ul>
+        <li>
+            <a href="https://medium.com/@dustinstansbury/understanding-apache-airflows-key-concepts-a96efed52b1a">Understanding Apache Airflow’s key concepts</a> by Dustin Stansbury
+        </li>
+        <li>
+            <a href="https://medium.com/@mozesr/basic-airflow-73361b62814f">Basic Airflow</a> by Moshe Roth
+        </li>
+        <li>
+            <a href="http://airflow.apache.org/tutorial.html">Offical Airflow Tutorial</a>
+        </li>
+        <li>
+            <a href="https://medium.com/snaptravel/airflow-part-2-lessons-learned-793fa3c0841e">How to create different patterns found in workflows</a> by Nehil Jain
+        </li>
+        <li>
+            <a href="https://blog.capitalplanning.nyc/apache-airflow-for-the-confused-b588935669df">Apache Airflow for the confused</a> by Jonathan Pichot
+        </li>
+    </ul>
+
+
 
 </article>
 </div>
