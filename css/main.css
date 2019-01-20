@@ -106,8 +106,10 @@ html {
 }
 
 .container {
-    margin: 10px 40px;
+    margin: 0 auto;
     max-width: 650px;
+    min-width: 120px;
+    padding: 16px;
 }
 
 h1 {
@@ -126,7 +128,13 @@ a {
 a:visited {
     text-decoration: line-through;
 }
+
 a:hover {
+    color: rgb(255, 211, 0);
+}
+
+article a {
+/* links in blog posts */
     color: rgb(255, 211, 0);
 }
 
@@ -166,6 +174,11 @@ div h2 {
     .photo img {
         width: 100%;
     }
+}
+
+pre {
+    background-color: #b0b0b017;
+    margin: 10px;
 }
 
 /* ==========================================================================
