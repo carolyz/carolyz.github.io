@@ -135,7 +135,7 @@ a:hover {
 
 article a {
 /* links in blog posts */
-    color: rgb(255, 211, 0);
+    text-decoration: underline;
 }
 
 div h2 {
@@ -178,7 +178,7 @@ div h2 {
 
 pre {
     background-color: #b0b0b017;
-    margin: 10px;
+    padding-left: 10px;
 }
 
 /* ==========================================================================
