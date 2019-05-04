@@ -170,6 +170,11 @@ div h2 {
     width: 80%;
 }
 
+.uppercase {
+    text-transform: uppercase;
+}
+
+
 @media only screen and (max-width: 400px) {
     .photo img {
         width: 100%;
