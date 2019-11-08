@@ -107,7 +107,7 @@ html {
 
 .container {
     margin: 0 auto;
-    max-width: 650px;
+    max-width: 750px;
     min-width: 120px;
     padding: 16px;
 }
@@ -183,7 +183,7 @@ div h2 {
 
 pre {
     background-color: #b0b0b017;
-    padding-left: 10px;
+    border: 10px solid transparent !important;
 }
 
 /* ==========================================================================
