@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Read, edit, and re-upload S3 files all without downloading!</title>
+    <meta name="description" content="Read, edit, and re-upload S3 files all without downloading">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="../favicon.ico">
+    <link rel="icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="../css/normalize.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+</head>
+<body>
+<!-- Content -->
+<div class="container">
+    <article>
+        <header>
+            <h1>How to read, modify, and re-upload S3 files without downloading</h1>
+            <h3 class="links">
+                <a href="//carolyz.github.io/">Carol Zhang</a> written Decemeber 2019
+            </h3>
+        </header>
+        <h2>Motivation</h2>
+        <p>My team often receive files from third-party data providers. This means we have to ingest the data (usually from their S3 buckets), process them to be consistent with our existing schemas, and re-upload to our own S3 buckets so we can build Athena tables on top. Doing all of that within the AWS ecosystem makes sure we avoid the time-consuming process of downloading potentially huge datasets locally or on a server, editing, then uploading again. </p>
+
+        <p>While resources exist online for how to do each of the above tasks individually, there is no comprehensive guide on how to chain them together. I outlined my workflow in hopes of helping anyone else looking to do the same.</p>
+
+        <h2>Steps</h2>
+        <p>Getting the object from S3 is a fairly standard process. Important thing to note here is <strong>decoding</strong> file from bytes to strings in order to do any useful processing.</p>
+        <pre class="prettyprint"><code class="language-python">
+    s3_client = boto3.client('s3')
+    s3_object = s3_client.get_object(Bucket=your_bucket, Key=key_of_obj)
+    data = s3_object['Body'].read().decode('utf-8')
+        </code></pre>
+
+        <p>After editing, (here we're removing quotes from CSVs using <code>writer = csv.writer(writer_buffer, quoting=csv.QUOTE_NONE)</code>) we write the results to the buffer. Since the file is decoded from bytes to strings before, we now <strong>re-encode back to bytes</strong> so we can upload the buffer.</p>
+        <p>Here is what it looks like in full. This can be done in fewer than ten lines!</p>
+        <pre class="prettyprint"><code class="language-python">
+    import io
+    import csv
+    import boto3
+
+    s3_client = boto3.client('s3')
+    s3_object = s3_client.get_object(Bucket=your_bucket, Key=key_of_obj)
+
+    # read the file
+    data = s3_object['Body'].read().decode('utf-8')
+    writer_buffer = io.StringIO()
+
+    # editing, here we're removing quotes
+    writer = csv.writer(writer_buffer, quoting=csv.QUOTE_NONE)
+    reader = csv.reader(io.StringIO(data), delimiter=',', skipinitialspace=True)
+
+    # writing and re-uploading
+    writer.writerows(reader)
+
+    buffer_to_upload = io.BytesIO(writer_buffer.getvalue().encode())
+    s3_client.put_object(Body=buffer_to_upload, Bucket='your_bucket', Key='path/to-your/file.csv')
+        </code> </pre>
+
+    <p>Questions? Comments? Reach out on  <a href="https://twitter.com/itscarolzee/">Twitter.</a></p>
+</article>
+</div>
+</body>
+</html>

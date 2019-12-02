@@ -20,7 +20,6 @@
 
     <link rel="stylesheet" href="../css/normalize.css">
     <link rel="stylesheet" href="../css/main.css">
-    <script src="../js/vendor/modernizr-2.8.3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
 </head>
 <body>
@@ -108,6 +107,8 @@ latest_only >> task_1 >> task_2
         <p> I also have to deal with custom modules, which live in a different repository. Adding custom modules directly inside requirements.txt will cause <code>pip install</code> to fail, because <strong> custom modules are not available through the default install path.</strong> A separate <code>pip install</code> followed by the path going to those modules <em>on the server</em> takes care of the remaining dependencies. </p>
 
         <p>One thing that is painfully clear to me now but was not before: simply running <code>pip install</code> inside the server on which the Docker container is does not install dependencies inside the container, because Docker is not aware of anything outside of the container. <strong>Airflow running inside a Docker container is looking for dependencies installed inside that container.</strong> Sometimes solving a problem involves drawing boxes around things and naming them. Then, it helps to reason about the relationships between boxes.</p>
+
+        <p>Questions? Comments? Reach out on  <a href="https://twitter.com/itscarolzee/">Twitter.</a></p>
 
     <h2>Airflow resources I found helpful</h2>
     <ul>
