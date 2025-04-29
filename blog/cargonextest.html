@@ -1,0 +1,109 @@
+<!doctype html>
+<!--
+
+ __           ___
+/   _  _ _ |   _/|_  _  _  _
+\__(_|| (_)|  /__| )(_|| )(_)
+                          _/
+
+-->
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Why use cargo-nextest</title>
+    <meta name="description" content="Why use cargo-nextest">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="../favicon.ico">
+    <link rel="icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="../css/normalize.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+</head>
+<body>
+<!-- Content -->
+<div class="container">
+    <article>
+        <header>
+            <h1>Why use cargo-nextest</h1>
+            <h3 class="links">
+                <a href="//carolyz.github.io/">Carol Zhang</a> written April 2025
+            </h3>
+        </header>
+        <h2>What is cargo-nextest?</h2>
+        <p><code><a href="https://nexte.st">cargo-nextest</a></code> is a test runner for Rust projects. It has several
+            improvements over
+            <code>cargo test</code>, the default test runner than comes out of the box with the Rust toolchain. While
+            both work quite well, nextest's features make running tests more efficient, reliable, and plain enjoyable.
+            The nextest project is lead by <a
+                    href="https://github.com/sunshowers">Rain (aka sunshowers on GitHub)</a>. A lot of the source
+            material here comes from their blog.
+
+        <p>I'm assuming everyone has a basic understanding of Rust and cargo so I'll jump straight to talking about what
+            I like about nextest.</p>
+
+        <h2>Speed</h2>
+
+        <p>Nextest is fast. The main draw for my team is parallel execution of tests. Since we have a large codebase
+            with lots of tests, a short feedback loop is very important when you're trying to make sure your local
+            feature branch
+            hasn't broken anything as you try to quickly iterate through different solutions. Nextest runs each
+            test in a separate process, each in parallel. This also means one test failing doesn't abort the entire test
+            suite run like in cargo test. While adding <code>--no-fail-fast</code> to cargo test does solve this issue,
+            the failure output
+            is printed when the test is run, so in a large codebase where there are a lot of tests, we may have to
+            scroll quite a bit to locate the failure(s). </p>
+
+        <h2>Retries</h2>
+
+        <p>Speaking of failures, when a test fails, nextest is able to automatically retry. If the same test
+            succeeds after a retry or two, <em>it is marked as flaky</em>. Retries can be configured via the command
+            line with the <code>--retries</code> option, or in <code>config/nextest.toml</code>.</p>
+        <p>I cannot stress how handy this is especially for tests in distributed systems, where many things can and do
+            go wrong seemingly randomly, and it is sometimes tricky to reason about. I don't know about you but if a
+            test in a part of a codebase I'm not very familiar with fails, the first thing I do is run it again. This is
+            the test equivalent of "turn it off and back on again". Not only do automatic retries save time, it also
+            points out potential flaws in the test suite, nudging devs to take another look at how a particular test is
+            set up. In a way, this goes beyond <em>just running tests</em>; it's about <em>how and why</em> we test our
+            system.</p>
+        <p>In addition, nextest includes fixed and exponential backoff, with jitter support for both.</p>
+
+        <h2>Other things I like</h2>
+        <p>Whenever there is a new tool to try, ease of adoption is a huge plus for me. In my experience, simply
+            switching from running the command <code>cargo test</code> to <code>cargo nextest</code> has been sufficient
+            to run all my tests
+            on the nextest runner. No refactoring and no tweaking needed. I really like how nextest doesn't force a
+            specific syntax or add dependencies to lock you in to the test runner.</p>
+
+        <p>Nextest's output format is also a lot easier to read. Look at the output of <code>cargo test</code></p>
+        <div class="photo">
+            <img src="https://user-images.githubusercontent.com/10141/35461573-ab3f2228-02e8-11e8-816a-fe3a84a4d8b4.png"
+                 alt="output of cargo test"/>
+        </div>
+        <p>and that of <code>cargo nextest</code></p>
+        <div class="photo">
+            <img src="https://user-images.githubusercontent.com/180618/169597155-d2dd30de-c1be-4c8d-8b3a-f37c77f7d328.png"
+                 alt="output of cargo nextest"/>
+        </div>
+        <p>Questions? Comments? Salad dressing recipe? Reach out on <a
+                href="https://twitter.com/itscarolzee/">Twitter.</a></p>
+
+        <h2>References</h2>
+        <ul>
+            <li>
+                <a href="https://www.reddit.com/r/rust/comments/sshvzy/cargonextest_a_new_test_runner_for_rust_projects/">cargo-nextest:
+                    a new test runner for Rust projects</a>
+            </li>
+            <li>
+                <a href="https://nexte.st/docs/design/how-it-works/">How nextest works</a>
+            </li>
+
+        </ul>
+
+
+    </article>
+</div>
+</body>
+</html>
